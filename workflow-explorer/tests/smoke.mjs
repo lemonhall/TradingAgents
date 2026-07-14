@@ -12,7 +12,10 @@ const html = read("index.html");
 const css = read("styles.css");
 const app = read("app.js");
 const dataSource = read("graph-data.js");
+const browserSpec = read("tests/browser.spec.mjs");
 const vendor = path.join(root, "vendor", "cytoscape.min.js");
+const favicon = path.join(root, "favicon.svg");
+const vercelIgnore = read(".vercelignore");
 
 assert.match(html, /id="workflow-canvas"/, "graph canvas is required");
 assert.match(html, /id="node-inspector"/, "node inspector is required");
@@ -20,11 +23,17 @@ assert.match(html, /data-depth="1"/, "shallow depth control is required");
 assert.match(html, /data-depth="3"/, "medium depth control is required");
 assert.match(html, /data-depth="5"/, "deep depth control is required");
 assert.match(html, /vendor\/cytoscape\.min\.js/, "Cytoscape must load locally");
+assert.match(html, /rel="icon" href="favicon\.svg"/, "site favicon is required");
 assert.doesNotMatch(html, /https?:\/\//, "runtime HTML must not depend on a CDN");
 assert.ok(fs.statSync(vendor).size > 100_000, "vendored Cytoscape asset looks incomplete");
+assert.ok(fs.statSync(favicon).size > 100, "site favicon looks incomplete");
 assert.match(css, /@media\s*\(max-width:\s*760px\)/, "mobile layout is required");
 assert.match(app, /cytoscape\s*\(/, "app must initialize Cytoscape");
 assert.match(app, /runSimulation/, "step simulation is required");
+assert.match(browserSpec, /WORKFLOW_EXPLORER_URL/, "browser QA must support the production URL");
+assert.match(read("playwright.config.mjs"), /PLAYWRIGHT_PROXY_URL/, "browser QA must support the local proxy");
+assert.match(vercelIgnore, /^node_modules\/$/m, "production deploy must exclude local dependencies");
+assert.match(vercelIgnore, /^tests\/$/m, "production deploy must exclude test sources");
 
 const sandbox = { globalThis: {} };
 vm.runInNewContext(dataSource, sandbox, { filename: "graph-data.js" });

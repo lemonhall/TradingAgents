@@ -3,7 +3,8 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const pageUrl = pathToFileURL(path.resolve(here, "..", "index.html")).href;
+const localPageUrl = pathToFileURL(path.resolve(here, "..", "index.html")).href;
+const pageUrl = process.env.WORKFLOW_EXPLORER_URL || localPageUrl;
 const artifacts = path.resolve(here, "..", "artifacts");
 
 async function assertCanvasHasGraphPixels(page) {

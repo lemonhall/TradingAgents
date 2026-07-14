@@ -62,7 +62,7 @@
 - Create: `workflow-explorer/vercel.json`
 
 - [x] Configure static clean URLs and security headers without adding a build step.
-- [ ] Commit only the explorer, plan, and `.gitignore` changes; push `main` to the personal fork.
-- [ ] Run `vercel --prod --yes` from `workflow-explorer`.
-- [ ] Open the production URL with Playwright and system Chrome and repeat the core interaction and console checks.
-- [ ] Report the production URL and exact verification evidence.
+- [x] Commit only the explorer, plan, and `.gitignore` changes; push `main` to the personal fork.
+- [x] Run `vercel --prod --yes` from `workflow-explorer`.
+- [x] Open the production URL with Playwright and system Chrome and repeat the core interaction and console checks.
+- [x] Report the production URL and exact verification evidence.

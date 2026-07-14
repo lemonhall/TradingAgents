@@ -1,0 +1,10 @@
+node_modules/
+artifacts/
+test-results/
+playwright-report/
+.npm-cache/
+.tmp/
+tests/
+playwright.config.mjs
+package.json
+package-lock.json
