@@ -1,0 +1,12 @@
+{
+  "name": "tradingagents-workflow-explorer",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test:contract": "node tests/smoke.mjs",
+    "test:browser": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.58.2"
+  }
+}

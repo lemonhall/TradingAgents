@@ -207,6 +207,15 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
+# Local Vercel metadata and browser QA captures
+.vercel/
+workflow-explorer/artifacts/
+workflow-explorer/node_modules/
+workflow-explorer/.npm-cache/
+workflow-explorer/.tmp/
+workflow-explorer/test-results/
+workflow-explorer/playwright-report/
+
 # Marimo
 marimo/_static/
 marimo/_lsp/

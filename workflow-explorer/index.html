@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="TradingAgents LangGraph workflow explorer">
+  <title>TradingAgents Workflow Explorer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand-block">
+      <div class="brand-mark" aria-hidden="true">TA</div>
+      <div>
+        <h1>TradingAgents <span>Workflow Explorer</span></h1>
+        <p id="source-version">正在读取源码模型...</p>
+      </div>
+    </div>
+    <div class="header-actions" aria-label="图形操作">
+      <button class="icon-button" id="zoom-out" type="button" title="缩小" aria-label="缩小">−</button>
+      <button class="icon-button" id="fit-graph" type="button" title="适应画布" aria-label="适应画布">⌖</button>
+      <button class="icon-button" id="zoom-in" type="button" title="放大" aria-label="放大">＋</button>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <aside class="control-panel" aria-label="工作流配置">
+      <section class="control-section">
+        <div class="section-heading">
+          <h2>分析师团队</h2>
+          <span id="analyst-count">4 / 4</span>
+        </div>
+        <div class="checkbox-list" id="analyst-controls">
+          <label><input type="checkbox" value="market" checked><span class="swatch analysis"></span>市场</label>
+          <label><input type="checkbox" value="sentiment" checked><span class="swatch analysis"></span>情绪</label>
+          <label><input type="checkbox" value="news" checked><span class="swatch analysis"></span>新闻</label>
+          <label><input type="checkbox" value="fundamentals" checked><span class="swatch analysis"></span>基本面</label>
+        </div>
+      </section>
+
+      <section class="control-section">
+        <div class="section-heading"><h2>研究深度</h2><span id="round-summary">1 + 1 轮</span></div>
+        <div class="segmented" id="depth-controls" role="group" aria-label="研究深度">
+          <button type="button" class="active" data-depth="1">浅</button>
+          <button type="button" data-depth="3">中</button>
+          <button type="button" data-depth="5">深</button>
+        </div>
+        <dl class="logic-metrics">
+          <div><dt>多空发言</dt><dd id="research-turns">2 次</dd></div>
+          <div><dt>风险发言</dt><dd id="risk-turns">3 次</dd></div>
+        </dl>
+      </section>
+
+      <section class="control-section simulation-section">
+        <div class="section-heading"><h2>执行轨迹</h2><span id="step-counter">0 / 0</span></div>
+        <div class="simulation-actions">
+          <button class="command-button primary" id="run-simulation" type="button"><span aria-hidden="true">▶</span>运行</button>
+          <button class="icon-button" id="step-simulation" type="button" title="单步执行" aria-label="单步执行">→</button>
+          <button class="icon-button" id="reset-simulation" type="button" title="重置轨迹" aria-label="重置轨迹">↺</button>
+        </div>
+        <p class="simulation-status" id="simulation-status">等待运行</p>
+      </section>
+
+      <section class="control-section legend-section">
+        <h2>连线语义</h2>
+        <ul class="legend-list">
+          <li><span class="line fixed"></span>固定传递</li>
+          <li><span class="line conditional"></span>条件路由</li>
+          <li><span class="line loop"></span>循环</li>
+          <li><span class="line persistence"></span>持久化</li>
+          <li><span class="line memory"></span>跨次记忆</li>
+        </ul>
+      </section>
+    </aside>
+
+    <section class="graph-workspace" aria-label="TradingAgents 工作流图">
+      <div class="phase-strip" aria-hidden="true">
+        <span>输入</span><span>分析</span><span>研究</span><span>交易</span><span>风险</span><span>裁决</span>
+      </div>
+      <div id="workflow-canvas" data-testid="workflow-canvas"></div>
+      <div class="graph-status" id="graph-status">19 个节点</div>
+    </section>
+
+    <aside class="inspector" id="node-inspector" data-testid="node-inspector" aria-live="polite">
+      <div class="inspector-head">
+        <div>
+          <span class="node-phase" id="detail-phase">CONTROL</span>
+          <h2 id="detail-title">运行输入</h2>
+        </div>
+        <span class="model-badge" id="detail-model">无 LLM</span>
+      </div>
+      <p class="detail-summary" id="detail-summary"></p>
+
+      <div class="detail-grid">
+        <section><h3>读取状态</h3><div class="token-list" id="detail-inputs"></div></section>
+        <section><h3>写入状态</h3><div class="token-list" id="detail-outputs"></div></section>
+      </div>
+
+      <section class="detail-section" id="tools-section">
+        <h3>可用工具</h3>
+        <div class="token-list tool-list" id="detail-tools"></div>
+      </section>
+
+      <section class="detail-section">
+        <h3>路由逻辑</h3>
+        <p class="route-copy" id="detail-route"></p>
+      </section>
+
+      <section class="prompt-section">
+        <div class="prompt-tabs" role="tablist" aria-label="提示词语言">
+          <button type="button" class="active" id="prompt-tab-zh" role="tab" aria-selected="true">中文意译</button>
+          <button type="button" id="prompt-tab-en" role="tab" aria-selected="false">英文原文</button>
+        </div>
+        <pre id="detail-prompt" tabindex="0"></pre>
+      </section>
+
+      <a class="source-link" id="detail-source" target="_blank" rel="noreferrer">查看源码</a>
+
+      <details class="state-schema">
+        <summary>AgentState 字段地图</summary>
+        <div id="state-schema-content"></div>
+      </details>
+    </aside>
+  </main>
+
+  <script src="vendor/cytoscape.min.js"></script>
+  <script src="graph-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
