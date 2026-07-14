@@ -16,6 +16,8 @@
 | 深度模型 | `grok-4.5` |
 | 快速模型 | `grok-4.5` |
 | 报告语言 | 中文 |
+| LLM 重试 | 每次调用最多重试 6 次 |
+| 断点续跑 | 默认启用 checkpoint |
 | 本地启动器 | `Start-TradingAgents.ps1` |
 
 实际 API Key 只保存在被 `.gitignore` 忽略的 `.env` 中，不会提交到 GitHub。
@@ -70,6 +72,8 @@ TRADINGAGENTS_LLM_BACKEND_URL=https://api-slb.krill-ai.com/codex/v1
 TRADINGAGENTS_DEEP_THINK_LLM=grok-4.5
 TRADINGAGENTS_QUICK_THINK_LLM=grok-4.5
 TRADINGAGENTS_OUTPUT_LANGUAGE=Chinese
+TRADINGAGENTS_LLM_MAX_RETRIES=6
+TRADINGAGENTS_CHECKPOINT_ENABLED=true
 
 TRADINGAGENTS_RESULTS_DIR=E:/development/TradingAgents/.tradingagents/logs
 TRADINGAGENTS_CACHE_DIR=E:/development/TradingAgents/.tradingagents/cache
@@ -77,6 +81,8 @@ TRADINGAGENTS_MEMORY_LOG_PATH=E:/development/TradingAgents/.tradingagents/memory
 ```
 
 Base URL 应停在 `/v1`。OpenAI 兼容客户端会自动请求 `/chat/completions`，不要把完整的 `/chat/completions` 地址写进配置。
+
+`TRADINGAGENTS_LLM_MAX_RETRIES=6` 用于吸收中转服务、代理或上游模型的短暂断线。`TRADINGAGENTS_CHECKPOINT_ENABLED=true` 会在每个图节点完成后保存状态；如果多次重试后仍失败，使用同一股票代码和分析日期重新启动即可从最近成功节点继续，而不是从头消耗一遍 API。
 
 ## 启动
 
@@ -153,6 +159,8 @@ git push origin main
 ### 网络超时
 
 确认本地代理 `127.0.0.1:7897` 正在运行。启动器只会在代理环境变量不存在时补默认值，因此也可以在启动前显式设置其他代理。
+
+如果异常底层显示 `incomplete chunked read`，说明已经收到 HTTP 响应，但代理或远端在正文完整传输前关闭了连接。这不是股票代码或 API Key 错误。当前配置会自动重试 6 次；若最终仍退出，使用相同输入重新运行以恢复 checkpoint。
 
 ### PowerShell 阻止脚本执行
 

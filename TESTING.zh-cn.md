@@ -13,6 +13,8 @@
 | 研究深度 | `Shallow` |
 | 输出语言 | 中文，由 `.env` 固定 |
 | 模型 | `grok-4.5`，由 `.env` 固定 |
+| LLM 重试 | 6 次，由 `.env` 固定 |
+| 断点续跑 | 默认启用 |
 
 `.SS` 表示上海证券交易所，`.SZ` 表示深圳证券交易所。A 股代码不能只输入六位数字，否则 Yahoo Finance 可能无法判断交易所。
 
@@ -99,6 +101,8 @@ grok-4.5
 
 程序会跳过手工选择，不需要再次输入 Key。
 
+启动信息还应表明 checkpoint 已启用。每个成功节点会把状态保存到 `.tradingagents\cache\checkpoints`。
+
 ## 运行中观察什么
 
 正常运行应依次出现市场分析、研究辩论、交易、风险管理和组合管理等状态。重点检查：
@@ -156,13 +160,30 @@ TRADINGAGENTS_LLM_MAX_RETRIES=6
 
 提高重试次数只能应对短暂限流，不能解决账户额度不足。
 
+### `incomplete chunked read` 或 `APIConnectionError`
+
+这表示 HTTP 响应正文尚未完整传完，代理、Krill 中转或上游模型就关闭了连接。当前 `.env` 已设置：
+
+```dotenv
+TRADINGAGENTS_LLM_MAX_RETRIES=6
+TRADINGAGENTS_CHECKPOINT_ENABLED=true
+```
+
+程序会先自动重试。如果 6 次重试后仍退出，重新执行 `Start-TradingAgents.ps1`，再次输入完全相同的股票代码、分析日期、分析师和研究深度，程序会从最近完成的 checkpoint 继续。
+
+只有明确想放弃旧进度、从头开始时才运行：
+
+```powershell
+.\Start-TradingAgents.ps1 --clear-checkpoints
+```
+
 ### 没有行情数据
 
 确认代码包含 `.SS` 或 `.SZ`，并确认日期是交易日。可将日期换成附近另一个已经结束的工作日。
 
 ### 中途想停止
 
-按 Ctrl+C。停止不会进行真实证券交易，但已经发出的模型请求仍可能产生费用。首次测试默认不开启 checkpoint；重新运行会从头开始。
+按 Ctrl+C。停止不会进行真实证券交易，但已经发出的模型请求仍可能产生费用。checkpoint 默认开启；使用相同输入重新运行可以续跑。
 
 ## 下一步测试
 
